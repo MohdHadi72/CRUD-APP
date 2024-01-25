@@ -1,8 +1,22 @@
 <?php
+
 $insert = false;
+$delete = false;
+$Update = false;
 
 $con = mysqli_connect('localhost', 'root', '', 'curddata') or die("Couldn't Connected");
 
+
+if (isset($_GET['delete'])) {
+
+    $sno = $_GET['delete'];
+
+    $sql = "DELETE FROM `crudtable` WHERE `crudtable`.`sno` = '$sno'";
+    $result = mysqli_query($con, $sql);
+    if ($result) {
+        $delete = true;
+    }
+}
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -15,6 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $sql = "UPDATE `crudtable` SET `title` = '$title', `description` = '$desctiption' WHERE `crudtable`.`sno` = $sno;";
 
         $result = mysqli_query($con, $sql);
+
+        if ($result) {
+            $Update = true;
+        }
     } else {
         $title = $_POST['title'];
         $desctiption = $_POST['description'];
@@ -73,10 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <button type="submit" class="btn btn-success mt-4 w-25"><strong>Update Now</strong></button>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+
             </div>
         </div>
     </div>
@@ -112,22 +127,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </nav>
 
-
-
-
-
     <?php
     if ($insert) {
         echo "
         <div class='alert alert-success alert-dismissible fade show' role='alert'>
-        <strong>Successfull:  </strong>Your Note Has been inserted Successfull.
+        <strong>Message:  </strong>Your Note Has been inserted Successfull.
         <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
         </div>";
     }
-
     ?>
 
+    <?php
+    if ($delete) {
+        echo "
+        <div class='alert alert-success alert-dismissible fade show' role='alert'>
+        <strong>Message:  </strong>Your Note Has been Delete Successfull.
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>";
+    }
+    ?>
 
+    <?php
+    if ($Update) {
+        echo "
+        <div class='alert alert-success alert-dismissible fade show' role='alert'>
+        <strong>Message:  </strong>Your Note Has been Update Successfull.
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>";
+    }
+    ?>
 
     <div class="contianer my-3">
         <h1>Add Yours Nots <span style="font-size: 28px;"> &nbsp;( ͡• ͜ʖ ͡• )</span> </h1>
@@ -168,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <td>" . $row['title'] . "</td>
                         <td>" . $row['description'] . "</td>
                         <td> <button class='edit btn btn-success' id=" . $row['sno'] . ">Edit</button>&nbsp;&nbsp;  
-                          <button class='Delete btn btn-success' type='submit'>Delete</button></td>
+                        <button class='delete btn btn-success' id=d" . $row['sno'] . ">Delete</button>
                     </tr>";
                 }
 
@@ -212,6 +240,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 $('#editModal').modal('toggle');
 
+            });
+        });
+
+        deletes = document.getElementsByClassName("delete");
+
+        Array.from(deletes).forEach((element) => {
+
+            element.addEventListener("click", (e) => {
+                sno = e.target.id.substr(1, )
+                if (confirm("You Are Agree For this Form!")) {
+                    console.log("Yes");
+                    window.location = `/CRUD/CrudApp.php?delete=${sno}`;
+                } else {
+                    console.log("Now")
+                }
             });
         });
     </script>
