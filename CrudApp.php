@@ -1,21 +1,32 @@
 <?php
 $insert = false;
 
-$con = mysqli_connect('localhost', 'root', '', 'CurdData') or die("Couldn't Connected");
+$con = mysqli_connect('localhost', 'root', '', 'curddata') or die("Couldn't Connected");
 
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = $_POST['title'];
-    $desctiption = $_POST['description'];
+    if (isset($_POST['snoEdit'])) {
+
+        $sno = $_POST['snoEdit'];
+        $title = $_POST['titleEdit'];
+        $desctiption = $_POST['descriptionEdit'];
+
+        $sql = "UPDATE `crudtable` SET `title` = '$title', `description` = '$desctiption' WHERE `crudtable`.`sno` = $sno;";
+
+        $result = mysqli_query($con, $sql);
+    } else {
+        $title = $_POST['title'];
+        $desctiption = $_POST['description'];
 
 
-    $sql = "INSERT INTO `crudtable` (`title`, `description`) VALUES ('$title','$desctiption')";
-    $result = mysqli_query($con, $sql);
+        $sql = "INSERT INTO `crudtable` (`title`, `description`) VALUES ('$title','$desctiption');";
+        $result = mysqli_query($con, $sql);
 
 
-    if ($result) {
-        $insert = true;
+        if ($result) {
+            $insert = true;
+        }
     }
 }
 
@@ -34,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
-    <title>Crud App Project</title>
+    <title>CRUD App Project</title>
 </head>
 
 <body style="background-color: #e4e9f7;">
@@ -48,15 +59,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="modal-body">
                     <form action="/CRUD/CrudApp.php" method="POST" class="mt-3">
+                        <input type="hidden" id="snoEdit" name="snoEdit">
+
                         <div class="mb-3">
-                            <label for="Title" class="form-label"><strong>Nots Title</strong></label>
+                            <label for="Title" class="form-label"><strong>Update Note</strong></label>
                             <input type="text" class="form-control" id="titleEdit" name="titleEdit" aria-describedby="emailHelp">
                         </div>
+
                         <div class="form-group">
-                            <label for="Description"><strong>Nots Description</strong></label>
+                            <label for="Description"><strong>Update Description</strong></label>
                             <textarea class="form-control" id="descriptionEdit" name="descriptionEdit"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-success mt-4 w-25"><strong>Edit Nots</strong></button>
+                        <button type="submit" class="btn btn-success mt-4 w-25"><strong>Update Now</strong></button>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -98,13 +112,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </nav>
 
+
+
+
+
     <?php
     if ($insert) {
         echo "
-        <div class='alert alert-warning alert-dismissible fade show' role='alert'>
-  <strong>Message : </strong> Your Nots Has Been Inserted Successfully.
-  <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-</div>";
+        <div class='alert alert-success alert-dismissible fade show' role='alert'>
+        <strong>Successfull:  </strong>Your Note Has been inserted Successfull.
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>";
     }
 
     ?>
@@ -149,14 +167,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <th scope='row'>" . $sno . "</th>
                         <td>" . $row['title'] . "</td>
                         <td>" . $row['description'] . "</td>
-                        <td> <button class='edit btn btn-success' type='submit'>Edite</button>&nbsp;&nbsp;  
+                        <td> <button class='edit btn btn-success' id=" . $row['sno'] . ">Edit</button>&nbsp;&nbsp;  
                           <button class='Delete btn btn-success' type='submit'>Delete</button></td>
                     </tr>";
                 }
 
-
                 ?>
-
 
             </tbody>
         </table>
@@ -182,15 +198,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Create Modal Function 
 
         Edit = document.getElementsByClassName("edit");
+
         Array.from(Edit).forEach((element) => {
+
             element.addEventListener("click", (e) => {
                 tr = e.target.parentNode.parentNode;
-                title = tr.getElementsByTagName("td")[0];
-                descriptions = tr.getElementsByTagName("td")[1];
-                titleEdit = title;
-                descriptionEdit = descriptions;
+                title = tr.getElementsByTagName("td")[0].innerHTML;
+                descriptions = tr.getElementsByTagName("td")[1].innerHTML;
+                titleEdit.value = title;
+                descriptionEdit.value = descriptions;
+                snoEdit.value = e.target.id;
+                console.log(e.target.id);
 
-                $('#editModal').modal('toggle'); // #editModal Id Name
+                $('#editModal').modal('toggle');
 
             });
         });
